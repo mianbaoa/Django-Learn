@@ -1,0 +1,32 @@
+{% extends "index.html" %}
+{% block content %}
+		<!-- Center Column -->
+		<div class="col-sm-9">
+
+			<!-- Articles -->
+			<div class="row">
+				<article class="col-xs-12">
+					<h2>{{ post.title }}</h2>
+                    <p class="pull-right"><span class="label label-default">{{ posttype }}</span> <span class="label label-default">{{ post.pub_date | date:"j M" }}</span></p>
+                    <p><hr></p>
+					<p>{{ post.content | safe }}</p>
+					<p class="pull-right">
+						{% for tag in posttags %}
+						<span class="label label-default">{{ tag.name }}</span>
+						{% endfor %}
+					</p>
+					<ul class="list-inline">
+						<li><a href="#"><span class="glyphicon glyphicon-comment"></span>评论{{ post.comment_num }}</a></li>
+						<li><a href="#"><span class="glyphicon glyphicon-thumbs-up"></span>赞{{ post.poll_num }}</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-floppy-save"></span>收藏{{ post.keep_num }}</a></li>
+					</ul>
+				</article>
+			</div>
+            <hr>
+            <!-- 评论 -->
+			<div>
+
+			</div>
+
+		</div><!--/Center Column-->
+{% endblock %}
