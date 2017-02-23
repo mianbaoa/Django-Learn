@@ -38,7 +38,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-globe"></span> Logo</a>
+                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-globe"></span> 苦咖啡的Blog</a>
             </div>
             <!-- Navbar links -->
             <div class="collapse navbar-collapse" id="navbar">
@@ -47,10 +47,10 @@
                         <a href="{% url 'focus:index' %}">Home</a>
                     </li>
                     <li>
-                        <a href="#">About</a>
+                        <a href="{% url 'focus:user' request.user.id %}">我的资料</a>
                     </li>
                     <li>
-                        <a href="#">Products</a>
+                        <a href="#">未完待续！</a>
                     </li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">博文分类 <span class="caret"></span></a>
@@ -59,15 +59,20 @@
 							<li><a href="{% url 'focus:type_post' type.id %}">{{ type.name }}</a></li>
 							{% endfor %}
 						</ul>
-					</li>    
+					</li>
+					{% if request.user.is_authenticated %}
+					<li>
+                        <a href="{% url 'focus:my_keep' %}">我的收藏</a>
+                    </li>
+					{% endif %}
                 </ul>
 
 				<!-- Search -->
-				<form class="navbar-form navbar-right" role="search">
+				<form class="navbar-form navbar-right" action="{% url 'focus:get_search' %}" role="search" method="POST">
 					<div class="form-group">
-						<input type="text" class="form-control">
+						<input type="text" class="form-control" name="search_value">
 					</div>
-					<button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Search</button>
+					<button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> 搜索</button>
 				</form>
 
             </div>
@@ -140,29 +145,30 @@
 
 		{% block content %}
 			{% load paginate_tags %}
-		    {% paginate posts 7 %}
+		    {% paginate posts 5 %}
 			<!-- Articles -->
 			{% for post in posts_page %}
 			<div class="row">
 				<article class="col-xs-12">
 					<h2>{{ post.title }}</h2>
-					<p>{{ post.content }}</p>
-					<p class="pull-right"><span class="label label-warning">{{ post.posttype }}</span> <span class="label label-default">{{ post.pub_date | date:"j M" }}</span></p>
-					<p><a href="{% url 'focus:post_page' post.id %}" <button class="btn btn-default">Read More</button></p>
-					<p class="pull-right">
+					<h5>作者:{{ post.author }}</h5>
+					<p>
 						{% for tag in post.posttag.all %}
 						    <span class="label label-warning">{{ tag.name }}</span>
 						{% endfor %}
 					</p>
+					<p>{{ post.content | slice:':200' }}</p>
+					<p class="pull-right"><span class="label label-warning">{{ post.posttype }}</span> <span class="label label-default">{{ post.pub_date | date:"j M" }}</span></p>
+					<p><a href="{% url 'focus:post_page' post.id %}"> <button class="btn btn-default">Read More</button></p></a>
 					<ul class="list-inline">
-						<li><a href="#"><span class="glyphicon glyphicon-comment">评论{{ post.comment_num }}</span></a></li>
-						<li><a href="#"><span class="glyphicon glyphicon-share">赞{{ post.poll_num }}</span></a></li>
+						<li><a href="{% url 'focus:post_page' post.id %}"><span class="glyphicon glyphicon-comment">评论{{ post.comment_num }}</span></a></li>
+						<li><a href="{% url 'focus:get_poll_post' post.id %}"><span class="glyphicon glyphicon-share">赞{{ post.poll_num }}</span></a></li>
 					</ul>
 				</article>
 			</div>
 			{% endfor %}
-			{% endblock %}
 			{% include "pagination.html" %}
+			{% endblock %}
 		</div><!--/Center Column-->
 
 

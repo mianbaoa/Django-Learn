@@ -6,6 +6,9 @@ from django.utils import timezone
 class NewUser(AbstractUser):
 
     profile=models.CharField(default="", max_length=256)
+    name = models.CharField(default="", max_length=10)
+    location = models.CharField(default="", max_length=10)
+
 
     def __str__(self):
         return self.username
@@ -46,7 +49,30 @@ class Post(models.Model):
         verbose_name_plural = 'post'
 
 class Comment(models.Model):
-    pass
+    user = models.ForeignKey(NewUser,null=True)
+    post = models.ForeignKey(Post,null=True)
+    content = models.TextField(default='')
+    pub_date = models.DateTimeField('date published',default=timezone.now)
+    poll_num = models.IntegerField(default=0)
+    reply_comment_num = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.content
+
+class Reply_Comment(models.Model):
+
+    user = models.ForeignKey(NewUser,null=True)
+    replied_comment =models.ForeignKey(Comment,null=True)
+    content = models.TextField(default='')
+    pub_date = models.DateTimeField('date published',default=timezone.now)
+
+    def __str__(self):
+        return self.content
+
+class Poll(models.Model):
+    user=models.ForeignKey(NewUser,null=True)
+    post=models.ForeignKey(Post,null=True)
+    comment= models.ForeignKey(Comment,null=True)
 
 
 

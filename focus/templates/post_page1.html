@@ -16,17 +16,49 @@
 						{% endfor %}
 					</p>
 					<ul class="list-inline">
-						<li><a href="#"><span class="glyphicon glyphicon-comment"></span>评论{{ post.comment_num }}</a></li>
-						<li><a href="#"><span class="glyphicon glyphicon-thumbs-up"></span>赞{{ post.poll_num }}</a></li>
-                        <li><a href="#"><span class="glyphicon glyphicon-floppy-save"></span>收藏{{ post.keep_num }}</a></li>
+						<li><a href="{% url 'focus:post_page' post.id %}"><span class="glyphicon glyphicon-comment"></span>评论{{ post.comment_num }}</a></li>
+						<li><a href="{% url 'focus:get_poll_post' post.id %}"><span class="glyphicon glyphicon-thumbs-up"></span>赞{{ post.poll_num }}</a></li>
+                        <li><a href="{% url 'focus:keep_post' post.id %}"><span class="glyphicon glyphicon-floppy-save"></span>收藏{{ post.keep_num }}</a></li>
 					</ul>
 				</article>
 			</div>
             <hr>
             <!-- 评论 -->
+			<h3>评论</h3>
+			<hr>
 			<div>
+            {% if comments %}
+				{% load paginate_tags %}
+		        {% paginate comments 5 %}
+			    {% for comment in comments_page %}
+				<div class="row">
 
+                <article class="col-xs-12">
+					<p class="pull-right"><a href="{% url 'focus:user' comment.user.id %}"><span class="label label-warning">{{ comment.user }}</span></a></p>
+                    <p>{{ comment.content }}</p>
+                    <ul class="list-inline">
+                        <li><a href=" ">{{ comment.pub_date | date:"j M" }}</a></li>
+                        <li><a href="{% url 'focus:comment_page' comment.id %}"><span class="glyphicon glyphicon-comment"></span> {{ comment.reply_comment_num }} 回复</a></li>
+                        <li><a href="{% url 'focus:get_poll_comment' comment.id %}"><span class="glyphicon glyphicon-thumbs-up"></span>{{ comment.poll_num }} 赞</a></li>
+                    </ul>
+                </article>
+                </div>
+				{% endfor %}
+                {% include "pagination.html" %}
+
+			{% else %}
+				<p>还没有人发表评论，快来抢个沙发吧～</p>
+			{% endif %}
 			</div>
-
+			<div class="row">
+                <article class="col-xs-12">
+                    <h4>发表评论:</h4>
+                    <form action="{% url 'focus:add_comment' post.id %}" method="post">
+                        {% csrf_token %}
+                        {{ commentform.as_p }}
+                        <input class="btn btn-default" type="submit" value="确定" />
+                    </form>
+                </article>
+            </div>
 		</div><!--/Center Column-->
 {% endblock %}

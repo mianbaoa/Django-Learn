@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404,render_to_response
-from .forms import LoginForm,RegisterForm
+from .forms import LoginForm,RegisterForm,CommentForm,ProfileForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-from .models import NewUser,Post,PostType,PostTag
+from .models import NewUser,Post,PostType,PostTag,Comment,Poll,Reply_Comment
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from .utils.token import Token
@@ -20,6 +20,28 @@ def index(request):
     context={'loginform':loginform,'posts':posts,'posts_page':posts_page}
     return render(request,'index.html',context)
 
+def user(request,user_id):
+    user=get_object_or_404(NewUser,pk=user_id)
+    return render(request,'user.html',{'user':user})
+
+def add_profile(request):
+    user=request.user
+    if request.method == 'GET':
+        form=ProfileForm()
+        return render(request, 'add_profile.html', {'form':form})
+    if request.method == 'POST':
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            profile = form.cleaned_data['profile']
+            location = form.cleaned_data['location']
+            print('name:'+name)
+            user.name = name
+            user.profile = profile
+            user.location = location
+            user.save()
+            messages.success(request,'个人资料修改成功！')
+            return redirect('/focus/user/'+str(user.id))
 def log_in(request):
     if request.method == 'GET':
         form=LoginForm()
@@ -115,7 +137,12 @@ def post_page(request,post_id):
         posttype=post.posttype
         posttags=post.posttag.all()
         form=LoginForm()
-        context={'form':form,'post':post,'posttype':posttype,'posttags':posttags}
+        commentform=CommentForm()
+        comments=Comment.objects.filter(post=post)
+        page = int(request.GET.get('page',1))
+        comments_page = comments[(page-1)*5:page*5]
+        context={'form':form,'post':post,'posttype':posttype,'posttags':posttags,
+                 'commentform':commentform,'comments':comments,'comments_page':comments_page}
         return render(request,'post_page1.html',context)
 
 def type_post(request,type_id):
@@ -123,7 +150,7 @@ def type_post(request,type_id):
     posts=type.post_set.all()
     form=LoginForm()
     context = {'loginform': form, 'posts': posts, }
-    return render(request,'index.html',context)
+    return render(request,'some_post.html',context)
 
 def add_post(request):
     return render(request,'add_post.html')
@@ -142,6 +169,123 @@ def sub_post(request):
             post.posttag.add(post_tag)
         messages.success(request,u'文章发表成功！！')
         return redirect(reverse('focus:index'))
+
+@login_required
+def add_comment(request,post_id):
+    form=CommentForm(request.POST)
+    post = Post.objects.get(pk=post_id)
+    user = request.user
+    url = '/focus/post/'+post_id
+    if form.is_valid():
+        content = form.cleaned_data['comment']
+        comment=Comment(post=post,user=user,content=content)
+        comment.save()
+        post.comment_num +=1
+        post.save()
+        messages.success(request,'发表评论成功')
+        return redirect(url)
+
+@login_required
+def get_poll_post(request,post_id):
+    post=Post.objects.get(pk=post_id)
+    logger_user = request.user
+    polls=logger_user.poll_set.all()
+    posts=[]
+    for poll in polls:
+        posts.append(poll.post)
+    if post not in posts:
+        poll=Poll(user=logger_user,post=post)
+        post.poll_num+=1
+        poll.save()
+        post.save()
+        return redirect('/focus/post/'+post_id)
+    else:
+        return redirect('/focus/post/'+post_id)
+#明天研究session来用点赞
+
+@login_required
+def get_poll_comment(request,comment_id):
+    comment=Comment.objects.filter(pk=comment_id).first()
+    post=comment.post
+    user = request.user
+    polls=user.poll_set.all()
+    comments=[]
+    for poll in polls:
+        comments.append(poll.comment)
+    if comment in comments:
+        return redirect('/focus/post/'+str(post.id))
+    else:
+        poll=Poll(user=user,comment=comment)
+        poll.save()
+        comment.poll_num+=1
+        comment.save()
+        return redirect('/focus/post/'+str(post.id))
+@login_required
+def keep_post(request,post_id):
+    post=Post.objects.get(pk=post_id)
+    user=request.user
+    posts=user.post_set.all()
+    if post not in posts:
+        post.user.add(user)
+        post.keep_num+=1
+        post.save()
+        messages.success(request,u"文章已收藏，请到'我的收藏'中查看。")
+        return redirect('/focus/post/'+post_id)
+    else:
+        messages.error(request,u'请勿重复收藏')
+        return redirect('/focus/post/'+post_id)
+@login_required
+def my_keep(request):
+    user=request.user
+    posts=user.post_set.all()
+    return render(request,'some_post.html',{'posts':posts})
+
+@login_required
+def comment_page(request,comment_id):
+    comment=Comment.objects.get(pk=comment_id)
+    form=CommentForm()
+    comments = Reply_Comment.objects.filter(replied_comment=comment)
+    return render(request,'comment_page.html',{
+        'comment':comment,
+        'comments':comments,
+        'form':form
+    })
+
+
+@login_required
+def reply_comment(request,comment_id):
+    user = request.user
+    comment = Comment.objects.get(id=comment_id)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        content = form.cleaned_data['comment']
+        reply_comment = Reply_Comment(content=content,user=user,replied_comment=comment)
+        reply_comment.save()
+        comment.reply_comment_num +=1
+        comment.save()
+        messages.success(request,'回复成功！')
+        return redirect('/focus/comment_page/'+comment_id)
+
+def get_search(request):
+    key = request.GET['search_value']
+    posts = Post.objects.all()
+    Search_result = []
+    for post in posts:
+        if key in post.title:
+            Search_result.append(post)
+        elif key in post.content:
+            Search_result.append(post)
+    if len(Search_result) == 0:
+        Search = 'Error'
+    else:
+        Search = 'Success'
+    Search_count = len(Search_result)
+    return render(request,'Search.html',{
+        'Search_result':Search_result,
+        'Search_count':Search_count,
+        'Search':Search,
+        'key':key
+    })
 
 
 
