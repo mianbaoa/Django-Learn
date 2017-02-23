@@ -69,6 +69,7 @@
 
 				<!-- Search -->
 				<form class="navbar-form navbar-right" action="{% url 'focus:get_search' %}" role="search" method="POST">
+					{% csrf_token %}
 					<div class="form-group">
 						<input type="text" class="form-control" name="search_value">
 					</div>

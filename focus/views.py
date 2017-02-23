@@ -107,7 +107,6 @@ def register(request):
 def token_confirm(request,token):
     token_confirm = Token(settings.SECRET_KEY)
     try:
-
         username=token_confirm.confirm_validate_token(token)
     except:
         username=token_confirm.remove_validate_token(token)
@@ -272,7 +271,7 @@ def reply_comment(request,comment_id):
         return redirect('/focus/comment_page/'+comment_id)
 #得到搜索的post
 def get_search(request):
-    key = request.GET['search_value']
+    key = request.POST['search_value']
     posts = Post.objects.all()
     Search_result = []
     for post in posts:
