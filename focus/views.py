@@ -224,16 +224,18 @@ def get_poll_comment(request,comment_id):
 def keep_post(request,post_id):
     post=Post.objects.get(pk=post_id)
     user=request.user
-    posts=user.post_set.all()
+    posts = user.post_set.all()
     if post not in posts:
         post.user.add(user)
         post.keep_num+=1
         post.save()
+        request.session['has_keep']=True
         messages.success(request,u"文章已收藏，请到'我的收藏'中查看。")
         return redirect('/focus/post/'+post_id)
     else:
-        messages.error(request,u'请勿重复收藏')
+        messages.error(request,u'请勿重复收藏！')
         return redirect('/focus/post/'+post_id)
+
 @login_required
 def my_keep(request):
     user=request.user
@@ -251,7 +253,7 @@ def comment_page(request,comment_id):
         'form':form
     })
 
-
+#回复别人
 @login_required
 def reply_comment(request,comment_id):
     user = request.user
@@ -262,10 +264,13 @@ def reply_comment(request,comment_id):
         reply_comment = Reply_Comment(content=content,user=user,replied_comment=comment)
         reply_comment.save()
         comment.reply_comment_num +=1
+        post=comment.post
+        post.comment_num+=1
+        post.save()
         comment.save()
         messages.success(request,'回复成功！')
         return redirect('/focus/comment_page/'+comment_id)
-
+#得到搜索的post
 def get_search(request):
     key = request.GET['search_value']
     posts = Post.objects.all()
@@ -286,6 +291,9 @@ def get_search(request):
         'Search':Search,
         'key':key
     })
-
-
+#显示回复我的所有评论
+def reply_me(request):
+    user = request.user
+    comments=user.reply_me
+    return render(request,'reply_me.html',{'comments':comments})
 

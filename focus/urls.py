@@ -20,5 +20,6 @@ urlpatterns=[
     url(r'^reply_comment/(?P<comment_id>\w+)/$',views.reply_comment,name='reply_comment'),
     url(r'^user/(?P<user_id>\w+)/$',views.user,name='user'),
     url(r'^add_profile/$',views.add_profile,name='add_profile'),
-    url(r'^get_search/$',views.get_search,name='get_search')
+    url(r'^get_search/$',views.get_search,name='get_search'),
+    url(r'^reply_me/$',views.reply_me,name='reply_me')
 ]

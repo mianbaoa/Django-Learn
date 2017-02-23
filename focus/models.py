@@ -9,6 +9,9 @@ class NewUser(AbstractUser):
     name = models.CharField(default="", max_length=10)
     location = models.CharField(default="", max_length=10)
 
+    def reply_me(self):
+        comments=self.comment_set.all()
+        return Reply_Comment.objects.filter(replied_comment__in=comments).order_by('-pub_date')
 
     def __str__(self):
         return self.username
