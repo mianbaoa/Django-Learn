@@ -1,0 +1,42 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="row">
+    <article class="col-xs-12">
+        <p class="pull-right"><span class="label label-default">{{ comment.user }}</span></p>
+        <p>{{ comment.content }}</p>
+        <ul class="list-inline">
+            <li><a href=" ">{{ comment.pub_date | date:"j M" }}</a></li>
+            <li><a href="{% url 'focus:get_poll_comment' comment.id %}"><span class="glyphicon glyphicon-thumbs-up"></span>{{ comment.poll_num }} 赞</a></li>
+        </ul>
+    </article>
+</div>
+<h3>回复:{{ comment.user }}</h3>
+<hr>
+<div>
+    {% for reply_comment in comments %}
+    <div class="row">
+
+                <article class="col-xs-12">
+                    <p class="pull-right"><span class="label label-default">{{ reply_comment.user }}</span></p>
+                    <p>{{ reply_comment.content }}</p>
+                    <ul class="list-inline">
+                        <li><a href=" ">{{ reply_comment.pub_date | date:"j M" }}</a></li>
+                    </ul>
+                </article>
+                </div>
+    {% endfor %}
+
+
+</div>
+<div class="row">
+    <article class="col-xs-12">
+        <h4>发表评论:</h4>
+        <form action="{% url 'focus:reply_comment' comment.id %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-default" type="submit" value="Submit" />
+        </form>
+    </article>
+</div>
+<!--/Center Column-->
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="page-header">
+    <div class="profile-header">
+        <h1>{{ user.username }}的个人资料</h1>
+        {% if user.name or user.location %}
+        <p>
+            {% if user.name %}{{ user.name }}{% endif %}
+            {% if user.location %}
+            From <a href="http://maps.baidu.com/?q={{ user.location }}">
+                {{ user.location }}
+            </a>
+            {% endif %}
+        </p>
+        {% endif %}
+        {% if user.profile %}<P>{{ user.profile }}</P>{% endif %}
+        <p>
+        注册时间: {{ user.date_joined }}
+        </p>
+        {% if user == request.user %}
+        <a class="btn btn-default" href="{% url 'focus:add_profile' %}">编辑个人资料</a>
+        <a href="{% url 'focus:reply_me' %}">评论中有{{ user.reply_me.count }}条回复</a>
+        {% endif %}
+
+    </div>
+</div>
+<hr style="height:3px;border:none;border-top:3px double red;" />
+<h3>{{ user.username }}的评论</h3>
+    {% for comment in user.comment_set.all %}
+            <div class="row">
+                <article class="col-xs-12">
+                    <p class="pull-right">
+                        <a href="{% url 'focus:post_page' comment.post.id %}">
+                        <span class="label label-default">进入博文</span>
+                        </a>
+                    </p>
+                    <p>{{ comment.content }}</p>
+                    <ul class="list-inline">
+                        <li><a href=" ">{{ comment.pub_date | date:"j M" }}</a></li>
+                    </ul>
+                </article>
+            </div>
+    {% endfor %}
+
+{% endblock %}
+

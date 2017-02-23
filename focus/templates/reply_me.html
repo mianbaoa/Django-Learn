@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{% block content %}
+{% for comment in comments %}
+<div class="row">
+
+                <article class="col-xs-12">
+					<p class="pull-right"><a href="{% url 'focus:user' comment.user.id %}"><span class="label label-warning">{{ comment.user }}</span></a></p>
+                    <p>{{ comment.content }}</p>
+                    <ul class="list-inline">
+                        <li><a href=" ">{{ comment.pub_date | date:"j M" }}</a></li>
+                    </ul>
+                </article>
+</div>
+				{% endfor %}
+{% endblock %}
