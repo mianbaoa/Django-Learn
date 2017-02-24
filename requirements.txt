@@ -5,3 +5,7 @@ packaging==16.8
 psycopg2==2.6.2
 pyparsing==2.1.10
 six==1.10.0
+#填坑:python3.5 安装psycopg2时
+#在虚拟环境中，请确保首先具有构建依赖关系：
+#sudo apt-get build-dep python3-psycopg2
+#然后安装：pip install psycopg2
