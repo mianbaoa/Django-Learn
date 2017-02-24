@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+    {% load staticfiles %}
+    <script src="{% static 'jquery.js' %}" >
+    </script>
+    <script src="{% static 'csrf.js' %}">
+    </script>
+    <script>
+    function authentication(){
+        var raw_username = document.getElementById("username").value;
+        $.ajax({type:'POST', data: {'raw_username': raw_username}
+        });
+    };
+    </script>
+</head>
+<body>
+{% if messages %}
+<ul class="messages">
+	{% for message in messages %}
+	<li {% if message.tags %}class="{{ message.tags }}"{% endif %} >{{ message }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
+<form  method="post" >
+ 	{% csrf_token %}
+	{{ form.non_field_errors }}
+	<div class="username">
+	{{ form.username.errors }}
+	<p> username: {{ form.username }}</p>
+	</div>
+	{% csrf_token %}
+	<div class="email">
+	{{ form.email.errors }}
+	<p> email: {{ form.email }}</p>
+	</div>
+
+	<div class="password1">
+	{{ form.password1.errors }}
+	<p> password:</p>
+	{{ form.password1 }}
+	</div>
+
+	<div class="password2">
+	{{ form.password2.errors }}
+	<p> repassword:</p>
+	{{ form.password2 }}
+	</div>
+	<input id="sub" type="submit" value="Submit" >
+</form>
+
+</body>
+</html>

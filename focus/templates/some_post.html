@@ -1,0 +1,29 @@
+#--coding:utf-8--
+{% extends "index.html" %}
+{% block content %}
+		<!-- Center Column -->
+		<div class="col-sm-9">
+
+			<!-- Articles -->
+			<div class="row">
+				<article class="col-xs-12">
+                    {% for post in posts %}
+					<h2>{{ post.title }}</h2>
+                    <p class="pull-right"><span class="label label-default">{{ posttype }}</span> <span class="label label-default">{{ post.pub_date | date:"j M" }}</span></p>
+                    <p><hr></p>
+					<p>{{ post.content | slice:':200' }}</p>
+					<p class="pull-right">
+						{% for tag in posttags %}
+						<span class="label label-default">{{ tag.name }}</span>
+						{% endfor %}
+					</p>
+					<ul class="list-inline">
+						<li><a href="{% url 'focus:post_page' post.id %}"><span class="glyphicon glyphicon-comment"></span>评论{{ post.comment_num }}</a></li>
+						<li><a href="{% url 'focus:get_poll_post' post.id %}"><span class="glyphicon glyphicon-thumbs-up"></span>赞{{ post.poll_num }}</a></li>
+                        <li><span class="glyphicon glyphicon-floppy-save"></span>收藏{{ post.keep_num }}</li>
+					</ul>
+                    {% endfor %}
+				</article>
+			</div>
+        </div>
+{% endblock %}
