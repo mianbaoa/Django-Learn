@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from django.shortcuts import render,redirect,get_object_or_404,render_to_response
 from .forms import LoginForm,RegisterForm,CommentForm,ProfileForm
 from django.contrib.auth import authenticate,login,logout

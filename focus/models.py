@@ -1,4 +1,4 @@
-
+# -*- coding:utf-8 -*-
 #这个类来扩充字段，之所以不自己写User模块，是因为内置的User模块使整个用户验证系统非常容易实现，
 from django.contrib.auth.models import AbstractUser
 from django.db import models
