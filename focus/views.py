@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django.shortcuts import render,redirect,get_object_or_404,render_to_response
-from .forms import LoginForm,RegisterForm,CommentForm,ProfileForm
+from .forms import LoginForm,RegisterForm,CommentForm,ProfileForm,PostTypeForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from .models import NewUser,Post,PostType,PostTag,Comment,Poll,Reply_Comment
@@ -153,22 +153,25 @@ def type_post(request,type_id):
     return render(request,'some_post.html',context)
 
 def add_post(request):
-    return render(request,'add_post.html')
+    form = PostTypeForm()
+    return render(request,'add_post.html',{'form':form})
 
 def sub_post(request):
-    if request.method == 'GET':
-        title = request.GET['post_title']
-        type = request.GET['post_type']
-        content = request.GET['post_content']
-        tags = request.GET.getlist('post_tags')
-        posttype=PostType.objects.filter(name=type).first()
-        post = Post(title=title,content=content,author='苦咖啡',posttype=posttype)
-        post.save()
-        for tag in tags:
-            post_tag = PostTag.objects.filter(name=tag).first()
-            post.posttag.add(post_tag)
-        messages.success(request,u'文章发表成功！！')
-        return redirect(reverse('focus:index'))
+
+    title = request.POST['post_title']
+    form = PostTypeForm(request.POST)
+    if form.is_valid():
+        type = form.cleaned_data['post_type']
+        tags = form.cleaned_data['post_tags']
+    content = request.POST['post_content']
+    posttype=PostType.objects.filter(name=type).first()
+    post = Post(title=title,content=content,author='苦咖啡',posttype=posttype)
+    post.save()
+    for tag in tags:
+        post_tag = PostTag.objects.filter(name=tag).first()
+        post.posttag.add(post_tag)
+    messages.success(request,u'文章发表成功！！')
+    return redirect(reverse('focus:index'))
 
 @login_required
 def add_comment(request,post_id):

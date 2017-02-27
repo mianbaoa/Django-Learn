@@ -3,38 +3,18 @@
 {% block content %}
 <h2>您当前的位置：<a href="/">首页</a>&nbsp;>&nbsp;新增文章</h2>
 <ul>
-<form action="{% url 'focus:sub_post' %}" method="get">
+<form action="{% url 'focus:sub_post' %}" method="post">
 {% csrf_token %}
     <p>文章标题</p>
     <div>
-        <select name="post_type" style="height: 20px; width: 120px;">
-            <option selected="selected">请选择文章类型</option>
-            <option value="工作与感情">工作与感情</option>
-            <option value="python学习">python学习</option>
-            <option value="Java">Java</option>
-            <option value="PHP">PHP</option>
-        </select>
-
+        {{ form.post_type }}
         <input name="post_title" type="text" style="height: 20px;width: 500px;" placeholder="请输入文章标题">
     </div>
     <p>文章内容</p>
     <textarea name="post_content" rows="29" style="width: 630px;"></textarea>
     <div>
         <p>文章标签</p>
-        技术文章
-        <input type="checkbox" name="post_tags" value="技术文章" checked="checked" />
-        <br />
-        学习
-        <input type="checkbox" name="post_tags" value="学习" />
-        <br />
-        感情
-        <input type="checkbox" name="post_tags" value="感情" />
-        <br />
-        转载
-        <input type="checkbox" name="post_tags" value="转载" />
-        <br />
-        原创
-        <input type="checkbox" name="post_tags" value="原创" />
+        {{ form.post_tags }}
         <br /><br />
     </div>
     <input type="submit" value="提交" style="margin-left: 300px;width: 60px;height: 20px;">
